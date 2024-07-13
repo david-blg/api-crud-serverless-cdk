@@ -5,16 +5,18 @@ import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs"
 import { Construct } from "constructs"
 import path = require("path")
 
-interface CreateLambdaDeleteNotesProps {
+
+interface LambdaGetNoteIdProps {
     functionName: string
     description: string
     notesTable: ITable
 }
 
-export const createLamdaDeleteNotes = (scope: Construct, props: CreateLambdaDeleteNotesProps) => {
+export const createLambdaGetNoteId = (scope: Construct, props: LambdaGetNoteIdProps) => {
+
     const { functionName, description, notesTable } = props
 
-    const lambda = new NodejsFunction(scope, 'LambdaDeleteNotes', {
+    const lambda = new NodejsFunction(scope, 'LambdaGetNoteId', {
         entry: path.join(__dirname, 'main.ts'),
         handler: 'handler',
         functionName,
@@ -27,7 +29,7 @@ export const createLamdaDeleteNotes = (scope: Construct, props: CreateLambdaDele
         }
     })
 
-    notesTable.grantReadWriteData(lambda)
+    notesTable.grantReadData(lambda)
 
     return lambda
 }

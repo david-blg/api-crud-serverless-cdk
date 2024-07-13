@@ -7,8 +7,11 @@ import { addCorsOptions } from "./cors";
 interface CreateApiGatewayProps {
     restApiName: string;
     description: string;
-    lamdaGetNotes: IFunction;
     cognitoPool: IUserPool;
+    lamdaGetNotes: IFunction;
+    lambdaPutNotes: IFunction;
+    lambdaGetNoteId: IFunction;
+    lambdaDeleteNotes: IFunction;
 }
 
 export const createApiGateway = (scope: Construct, props: CreateApiGatewayProps) => {
