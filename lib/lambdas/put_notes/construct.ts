@@ -18,7 +18,7 @@ export const createLambdaPutNotes = (scope: Construct, props: CreateLambdaPutNot
 
     const { functionName, description, notesTable } = props
 
-    const lambda = new NodejsFunction(scope, 'LambdaGetNotes', {
+    const lambda = new NodejsFunction(scope, 'LambdaPutNotes', {
         entry: path.join(__dirname, 'main.ts'),
         handler: 'handler',
         functionName,
