@@ -8,6 +8,7 @@ import { BillingMode } from 'aws-cdk-lib/aws-dynamodb';
 import { createLambdaPutNotes } from './lambdas/put_notes/construct';
 import { createLamdaDeleteNotes } from './lambdas/delete_notes/construct';
 import { createLambdaGetNoteId } from './lambdas/get_note_id/construct';
+import { createBucketS3 } from './s3/createBucketS3';
 
 
 export class ApiCrudServerlessCdkStack extends cdk.Stack {
@@ -22,11 +23,18 @@ export class ApiCrudServerlessCdkStack extends cdk.Stack {
       domainPrefix: 'api-crud-serverless-demo'
     })
 
+
+    // Create a DynamoDB Table
     const notesTable = createNotesTable(this, {
       tableName: 'UserNotes',
       enableStreams: false, // Enable DynamoDB Streams if you want to use it with Lambda Triggers or Kinesis
       enablePointInTimeRecovery: false, // Enable Point in Time Recovery for the DynamoDB Table (Not available for On-Demand Billing Mode)
       billingMode: BillingMode.PAY_PER_REQUEST
+    })
+
+    // Create Bucket S3 for file uploads
+    const bucket = createBucketS3(this, {
+      bucketName: 'bucket-s3-api-crud-serverless-demo'
     })
 
     // Create a Lambda functions
@@ -45,7 +53,8 @@ export class ApiCrudServerlessCdkStack extends cdk.Stack {
     const lambdaPutNotes = createLambdaPutNotes(this, {
       functionName: 'Lambda-Put-Notes',
       description: 'This Lambda function will create a new note or update an existing one',
-      notesTable
+      notesTable,
+      bucket
     })
 
     const lambdaDeleteNotes = createLamdaDeleteNotes(this, {

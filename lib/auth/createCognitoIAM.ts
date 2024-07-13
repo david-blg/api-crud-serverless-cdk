@@ -41,7 +41,7 @@ export const createCognitoIAM = (scope: Construct, props: CognitoIAMProps) => {
         userPoolClientName: 'UserPoolClient',
         generateSecret: false,
         authFlows: {
-            // userPassword: true,
+            userPassword: true,
             userSrp: true
         },
         oAuth: {
