@@ -1,4 +1,4 @@
-import { RemovalPolicy, Duration } from "aws-cdk-lib";
+import { RemovalPolicy } from "aws-cdk-lib";
 import {
     AttributeType,
     BillingMode,
@@ -35,7 +35,7 @@ export const createNotesTable = (scope: Construct, props: NotesTableProps) => {
             type: AttributeType.STRING
         },
         billingMode,
-        encryption: TableEncryption.AWS_MANAGED,
+        encryption: TableEncryption.AWS_MANAGED, // If you want to use a Customer Managed Key, use TableEncryption.CUSTOMER_MANAGED and provide the key as a parameter
         removalPolicy: RemovalPolicy.DESTROY,
         pointInTimeRecovery: enablePointInTimeRecovery,
         timeToLiveAttribute: 'ttl',
@@ -59,8 +59,14 @@ export const createNotesTable = (scope: Construct, props: NotesTableProps) => {
     // Índice secundario global por fecha de creación
     table.addGlobalSecondaryIndex({
         indexName: 'CreatedAtIndex',
-        partitionKey: { name: 'userId', type: AttributeType.STRING },
-        sortKey: { name: 'createdAt', type: AttributeType.NUMBER },
+        partitionKey: {
+            name: 'userId',
+            type: AttributeType.STRING
+        },
+        sortKey: {
+            name: 'createdAt',
+            type: AttributeType.NUMBER
+        },
         projectionType: ProjectionType.ALL,
     });
 
