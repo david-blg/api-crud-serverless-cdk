@@ -5,14 +5,14 @@ import { Construct } from "constructs"
 import path = require("path")
 
 
-interface CreateLambdaGetNotesProps {
+interface CreateLambdaPutNotesProps {
     functionName: string
     description: string
 }
 
 
 
-export const createLambdaGetNotes = (scope: Construct, props: CreateLambdaGetNotesProps) => {
+export const createLambdaPutNotes = (scope: Construct, props: CreateLambdaPutNotesProps) => {
 
     const { functionName, description } = props
 
