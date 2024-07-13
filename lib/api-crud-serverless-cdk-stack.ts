@@ -30,7 +30,7 @@ export class ApiCrudServerlessCdkStack extends cdk.Stack {
     })
 
     // Create a Lambda functions
-    const lamdaGetNotes = CreateLambdaGetNotes(this, {
+    const lambdaGetNotes = CreateLambdaGetNotes(this, {
       functionName: 'Lambda-Get-Notes',
       description: 'This Lambda function will return all notes',
       notesTable
@@ -59,7 +59,7 @@ export class ApiCrudServerlessCdkStack extends cdk.Stack {
       restApiName: 'Api-Crud-Serverless-Demo',
       description: 'This is a simple API Gateway for a CRUD serverless application using AWS CDK',
       cognitoPool,
-      lamdaGetNotes,
+      lambdaGetNotes,
       lambdaPutNotes,
       lambdaDeleteNotes,
       lambdaGetNoteId
