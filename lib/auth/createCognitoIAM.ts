@@ -37,7 +37,7 @@ export const createCognitoIAM = (scope: Construct, props: CognitoIAMProps) => {
     })
 
     // Create a Cognito User Pool Client 
-    userPool.addClient('UserPoolClient', {
+    const client = userPool.addClient('UserPoolClient', {
         userPoolClientName: 'UserPoolClient',
         generateSecret: false,
         authFlows: {
@@ -55,7 +55,7 @@ export const createCognitoIAM = (scope: Construct, props: CognitoIAMProps) => {
     })
 
     // Create a Cognito User Pool Domain
-    userPool.addDomain('UserPoolDomain', {
+    const domain = userPool.addDomain('UserPoolDomain', {
         cognitoDomain: {
             domainPrefix,
         }
