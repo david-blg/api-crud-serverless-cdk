@@ -17,8 +17,8 @@ interface Note {
   noteId: string;
   title: string;
   content: string;
-  createdAt: string;  // Change to string to store ISO format
-  updatedAt: string;  // Change to string to store ISO format
+  createdAt: string;  
+  updatedAt: string;  
   s3Key?: string;
 }
 
