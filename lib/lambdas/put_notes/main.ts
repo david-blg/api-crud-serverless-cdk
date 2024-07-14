@@ -5,12 +5,16 @@ import { v4 as uuidv4 } from 'uuid';
 import { ResponseError, ResponseNotFound, validateFields, validateRequest } from "../utils/responses";
 import { uploadObject } from "../utils/s3_utils";
 
+// Initialize AWS clients
 const dynamoClient = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(dynamoClient);
 const s3Client = new S3Client({});
+
+// Get resource names from environment variables
 const TABLE_NAME = process.env.TABLE_NAME!;
 const BUCKET_NAME = process.env.BUCKET_NAME!;
 
+// Interface defining the structure of a note
 interface Note {
   userId: string;
   noteId: string;
@@ -24,6 +28,7 @@ interface Note {
 export const handler = async (event: any): Promise<any> => {
   console.log('Event:', event);
   try {
+    // Validate the request and required fields
     const requestBody = validateRequest(event);
     if ('statusCode' in requestBody) return requestBody;
 
@@ -37,8 +42,9 @@ export const handler = async (event: any): Promise<any> => {
     let note: Note;
     let isUpdate = false;
 
+    // Check if it's an update or a new note
     if (event.pathParameters?.noteId) {
-      // Check if the note exists
+      // Look for existing note
       const getCommand = new GetCommand({
         TableName: TABLE_NAME,
         Key: { userId, noteId }
@@ -46,7 +52,7 @@ export const handler = async (event: any): Promise<any> => {
       const { Item } = await docClient.send(getCommand);
 
       if (!Item) {
-        ResponseNotFound(404, 'NoteId not found, should be created');
+        return ResponseNotFound(404, 'NoteId not found, should be created');
       }
 
       isUpdate = true;
@@ -57,6 +63,7 @@ export const handler = async (event: any): Promise<any> => {
         updatedAt: timestamp
       };
     } else {
+      // Create a new note
       note = {
         userId,
         noteId,
@@ -74,7 +81,7 @@ export const handler = async (event: any): Promise<any> => {
       note.s3Key = s3Key;
     }
 
-    // Save or update note in DynamoDB
+    // Save or update the note in DynamoDB
     if (isUpdate) {
       const updateCommand = new UpdateCommand({
         TableName: TABLE_NAME,
@@ -97,6 +104,7 @@ export const handler = async (event: any): Promise<any> => {
       await docClient.send(putCommand);
     }
 
+    // Return the created or updated note
     return {
       statusCode: isUpdate ? 200 : 201,
       body: JSON.stringify(note)
