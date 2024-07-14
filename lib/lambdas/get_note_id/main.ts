@@ -40,11 +40,10 @@ export const handler = async (event: any = {}): Promise<any> => {
             }
         }
 
-        console.log('Item:', JSON.stringify(Item));
-
         return {
             statusCode: 200,
-            body: JSON.stringify(Item)
+            body: Item,
+            message: 'Note retrieved successfully'
         };
     } catch (error) {
         console.error('Error:', error);

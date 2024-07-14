@@ -77,10 +77,8 @@ export const handler = async (event: any = {}): Promise<any> => {
 
         return {
             statusCode: 200,
-            body: JSON.stringify({
-                message: 'Notes retrieved successfully',
-                notes: notes
-            })
+            body: notes,
+            message: 'Notes retrieved successfully'
         };
     } catch (error) {
         console.error('Error:', error);

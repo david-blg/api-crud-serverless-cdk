@@ -26,16 +26,16 @@ export const handler = async (event: any = {}): Promise<any> => {
 
         const { Attributes } = await docClient.send(deleteCommand);
 
+        console.log('Attributes:', Attributes);
+        
         if (!Attributes) {
             return ResponseError(404, 'Note not found');
         }
 
         return {
             statusCode: 200,
-            body: JSON.stringify({
-                message: 'Note deleted successfully',
-                deletedNote: Attributes
-            })
+            body: Attributes,
+            message: 'Note deleted successfully'
         };
     } catch (error) {
         console.error('Error:', error);

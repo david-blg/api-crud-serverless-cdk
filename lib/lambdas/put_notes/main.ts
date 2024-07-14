@@ -17,8 +17,8 @@ interface Note {
   noteId: string;
   title: string;
   content: string;
-  createdAt: number;
-  updatedAt: number;
+  createdAt: string;
+  updatedAt: string;
   s3Key?: string;
 }
 
@@ -34,7 +34,8 @@ export const handler = async (event: any): Promise<any> => {
 
     const { userId, title, content, filePath } = bodyFields;
     const noteId = event.pathParameters?.noteId || uuidv4();
-    const timestamp = Date.now();
+    // format iso string to timestamp
+    const timestamp = new Date().toISOString();
 
     let note: Note;
     let isUpdate = false;
@@ -104,7 +105,8 @@ export const handler = async (event: any): Promise<any> => {
     // Return the created or updated note
     return {
       statusCode: isUpdate ? 200 : 201,
-      body: JSON.stringify(note)
+      body: note,
+      message: isUpdate ? 'Note updated successfully' : 'Note created successfully'
     };
   } catch (error) {
     console.error('Error:', error);
