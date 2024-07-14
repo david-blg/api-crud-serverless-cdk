@@ -58,7 +58,7 @@ export const createNotesTable = (scope: Construct, props: NotesTableProps) => {
         },
         sortKey: {
             name: 'createdAt',
-            type: AttributeType.NUMBER
+            type: AttributeType.STRING
         },
         projectionType: ProjectionType.ALL,
     });

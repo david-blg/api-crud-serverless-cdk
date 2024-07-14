@@ -26,7 +26,7 @@ export const handler = async (event: any = {}): Promise<any> => {
     console.log('Event:', event);
 
     try {
-        const userId = event.pathParameters?.userId || event.queryStringParameters?.userId;
+        const { userId } = event.pathParameters;
 
         if (!userId) {
             return ResponseError(400, 'UserId is required');
@@ -77,10 +77,8 @@ export const handler = async (event: any = {}): Promise<any> => {
 
         return {
             statusCode: 200,
-            body: JSON.stringify({
-                message: 'Notes retrieved successfully',
-                notes: notes
-            })
+            body: notes,
+            message: 'Notes retrieved successfully'
         };
     } catch (error) {
         console.error('Error:', error);
