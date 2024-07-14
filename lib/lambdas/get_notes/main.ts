@@ -1,10 +1,7 @@
-// Lambda function to get all notes from DynamoDB for a specific user
-
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-// import { S3Client } from "@aws-sdk/client-s3";
 import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { ResponseError } from "../utils/responses";
-
+import { generatePresignedUrl } from "../utils/s3_utils";
 
 interface Note {
     noteId: string;
@@ -12,31 +9,29 @@ interface Note {
     content: string;
     createdAt: number;
     updatedAt: number;
+    s3Key?: string;
+    presignedUrl?: string;
 }
 
 // Initialize AWS clients
 const dynamoClient = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(dynamoClient);
-// const s3Client = new S3Client({});
-
-
 
 // Get resource names from environment variables
 const TABLE_NAME = process.env.TABLE_NAME!;
-// const BUCKET_NAME = process.env.BUCKET_NAME!;
+
+
 
 export const handler = async (event: any = {}): Promise<any> => {
     console.log('Event:', event);
 
     try {
-        // Extract userId from path parameters or query string parameters
         const userId = event.pathParameters?.userId || event.queryStringParameters?.userId;
 
         if (!userId) {
             return ResponseError(400, 'UserId is required');
         }
 
-        // Query DynamoDB for all notes belonging to the user
         const queryCommand = new QueryCommand({
             TableName: TABLE_NAME,
             KeyConditionExpression: 'userId = :userId',
@@ -57,12 +52,27 @@ export const handler = async (event: any = {}): Promise<any> => {
             };
         }
 
-        const notes: Note[] = Items.map((item) => ({
-            noteId: item.noteId,
-            title: item.title,
-            content: item.content,
-            createdAt: item.createdAt,
-            updatedAt: item.updatedAt
+        const notes: Note[] = await Promise.all(Items.map(async (item: any) => {
+            const note: Note = {
+                noteId: item.noteId,
+                title: item.title,
+                content: item.content,
+                createdAt: item.createdAt,
+                updatedAt: item.updatedAt,
+            };
+
+            // Check if s3Key exists and generate presigned URL if it does
+            if (item.s3Key) {
+                note.s3Key = item.s3Key;
+                try {
+                    note.presignedUrl = await generatePresignedUrl(item.s3Key);
+                } catch (error) {
+                    console.error(`Error generating presigned URL for note ${note.noteId}:`, error);
+                    // We don't add presignedUrl if there's an error, but we keep the note
+                }
+            }
+
+            return note;
         }));
 
         return {
