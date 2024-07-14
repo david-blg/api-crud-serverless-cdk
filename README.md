@@ -1,7 +1,21 @@
 
-# API CRUD Serverless CDK
+# Serverless API CRUD with AWS CDK
 
 This project demonstrates a serverless CRUD (Create, Read, Update, Delete) API backend using AWS services and Infrastructure as Code (IaC) with AWS CDK and TypeScript.
+
+## Infrastructure Overview
+
+This project sets up the following AWS resources:
+
+1. **Amazon Cognito**: User authentication
+2. **Amazon DynamoDB**: NoSQL database for storing notes
+3. **AWS Lambda**: Serverless functions for API logic
+4. **Amazon API Gateway**: RESTful API endpoints
+5. **Amazon S3**: Storage for file uploads
+
+
+![Architecture Diagram](./architecture-diagram.png)
+
 
 ## Project Structure
 
@@ -37,18 +51,7 @@ lib/
 │       └── utils.ts
 └── s3
     └── createBucketS3.ts
-
 ```
-
-## Infrastructure Overview
-
-This project sets up the following AWS resources:
-
-1. **Amazon Cognito**: User authentication
-2. **Amazon DynamoDB**: NoSQL database for storing notes
-3. **AWS Lambda**: Serverless functions for API logic
-4. **Amazon API Gateway**: RESTful API endpoints
-5. **Amazon S3**: Storage for file uploads
 
 ## Key Components
 
@@ -56,11 +59,13 @@ This project sets up the following AWS resources:
 
 The API Gateway is created using the `createApiGateway` function, which sets up the following endpoints:
 
-- GET /v1/notes: Retrieve all notes
-- POST /v1/notes: Create a new note
-- GET /v1/notes/{noteId}: Retrieve a specific note
-- PUT /v1/notes/{noteId}: Update a specific note
-- DELETE /v1/notes/{noteId}: Delete a specific note
+| Endpoint             | Method | Description              |
+| -------------------- | ------ | ------------------------ |
+| `/v1/notes`          | GET    | Retrieve all notes       |
+| `/v1/notes`          | POST   | Create a new note        |
+| `/v1/notes/{noteId}` | GET    | Retrieve a specific note |
+| `/v1/notes/{noteId}` | PUT    | Update a specific note   |
+| `/v1/notes/{noteId}` | DELETE | Delete a specific note   |
 
 Each endpoint is protected by a Cognito User Pool Authorizer and includes request validators.
 
