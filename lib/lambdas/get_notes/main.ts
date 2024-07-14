@@ -26,7 +26,7 @@ export const handler = async (event: any = {}): Promise<any> => {
     console.log('Event:', event);
 
     try {
-        const userId = event.pathParameters?.userId || event.queryStringParameters?.userId;
+        const { userId } = event.pathParameters;
 
         if (!userId) {
             return ResponseError(400, 'UserId is required');
