@@ -106,7 +106,7 @@ This base configuration defines the main structure of the DynamoDB table used to
   - **Partition Key**: `title` (String)
 - **CreatedAtIndex**: Allows querying notes based on their creation date.
   - **Partition Key**: `userId` (String)
-  - **Sort Key**: `createdDate` (Date/Time)
+  - **Sort Key**: `createdAt` (Date/Time)
 
 These Global Secondary Indexes enhance query flexibility for your DynamoDB operations, supporting efficient access patterns by title and creation date.
 
