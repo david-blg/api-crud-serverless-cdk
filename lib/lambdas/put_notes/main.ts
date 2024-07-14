@@ -76,7 +76,7 @@ export const handler = async (event: any): Promise<any> => {
 
     // Upload file to S3 if provided
     if (filePath) {
-      const s3Key = `${title}/${noteId}/${filePath.split('/').pop()}`;
+      const s3Key = `${title}/${noteId}/${filePath}`;
       await uploadObject(s3Client, BUCKET_NAME, s3Key, filePath);
       note.s3Key = s3Key;
     }
