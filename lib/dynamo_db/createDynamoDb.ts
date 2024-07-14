@@ -12,8 +12,8 @@ interface NotesTableProps {
 export const createNotesTable = (scope: Construct, props: NotesTableProps) => {
     const {
         tableName,
-        enableStreams = false,
-        enablePointInTimeRecovery = true,
+        enableStreams,
+        enablePointInTimeRecovery,
         billingMode = BillingMode.PAY_PER_REQUEST
     } = props;
 
@@ -35,7 +35,7 @@ export const createNotesTable = (scope: Construct, props: NotesTableProps) => {
         stream: enableStreams ? StreamViewType.NEW_AND_OLD_IMAGES : undefined,
     });
 
-    // Índice secundario global por título
+    // Global secondary index by title
     table.addGlobalSecondaryIndex({
         indexName: 'TitleIndex',
         partitionKey: {
@@ -49,7 +49,7 @@ export const createNotesTable = (scope: Construct, props: NotesTableProps) => {
         projectionType: ProjectionType.ALL,
     });
 
-    // Índice secundario global por fecha de creación
+    // Global secondary index by creation date
     table.addGlobalSecondaryIndex({
         indexName: 'CreatedAtIndex',
         partitionKey: {
