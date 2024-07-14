@@ -41,7 +41,8 @@ export class ApiCrudServerlessCdkStack extends cdk.Stack {
     const lambdaGetNotes = CreateLambdaGetNotes(this, {
       functionName: 'Lambda-Get-Notes',
       description: 'This Lambda function will return all notes',
-      notesTable
+      notesTable,
+      bucket
     })
 
     const lambdaGetNoteId = createLambdaGetNoteId(this, {
