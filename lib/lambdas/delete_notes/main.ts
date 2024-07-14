@@ -1,6 +1,6 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, DeleteCommand } from "@aws-sdk/lib-dynamodb";
-import { ResponseError } from "../utils/responses";
+import { ResponseError } from "../utils/utils";
 
 const dynamoClient = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(dynamoClient);
@@ -27,7 +27,7 @@ export const handler = async (event: any = {}): Promise<any> => {
         const { Attributes } = await docClient.send(deleteCommand);
 
         console.log('Attributes:', Attributes);
-        
+
         if (!Attributes) {
             return ResponseError(404, 'Note not found');
         }
