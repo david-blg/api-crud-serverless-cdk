@@ -17,8 +17,8 @@ interface Note {
   noteId: string;
   title: string;
   content: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: string;  // Change to string to store ISO format
+  updatedAt: string;  // Change to string to store ISO format
   s3Key?: string;
 }
 
@@ -34,7 +34,6 @@ export const handler = async (event: any): Promise<any> => {
 
     const { userId, title, content, filePath } = bodyFields;
     const noteId = event.pathParameters?.noteId || uuidv4();
-    // format iso string to timestamp
     const timestamp = new Date().toISOString();
 
     let note: Note;
@@ -74,7 +73,9 @@ export const handler = async (event: any): Promise<any> => {
 
     // Upload file to S3 if provided
     if (filePath) {
-      const s3Key = `${userId}/${noteId}/${timestamp}_${filePath}`;
+      // extract original file name from filePath if provided
+      const originalFileName = filePath ? filePath.split('/').pop() : '';
+      const s3Key = `user-${userId}/noteId-${noteId}/${originalFileName}`;
       await uploadObject(s3Key, filePath);
       note.s3Key = s3Key;
     }
