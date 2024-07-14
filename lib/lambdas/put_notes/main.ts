@@ -1,6 +1,5 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand, GetCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
-import { S3Client } from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from 'uuid';
 import { ResponseError, ResponseNotFound, validateFields, validateRequest } from "../utils/responses";
 import { uploadObject } from "../utils/s3_utils";
@@ -8,11 +7,9 @@ import { uploadObject } from "../utils/s3_utils";
 // Initialize AWS clients
 const dynamoClient = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(dynamoClient);
-const s3Client = new S3Client({});
 
 // Get resource names from environment variables
 const TABLE_NAME = process.env.TABLE_NAME!;
-const BUCKET_NAME = process.env.BUCKET_NAME!;
 
 // Interface defining the structure of a note
 interface Note {
@@ -77,7 +74,7 @@ export const handler = async (event: any): Promise<any> => {
     // Upload file to S3 if provided
     if (filePath) {
       const s3Key = `${title}/${noteId}/${filePath}`;
-      await uploadObject(s3Client, BUCKET_NAME, s3Key, filePath);
+      await uploadObject(s3Key, filePath);
       note.s3Key = s3Key;
     }
 
