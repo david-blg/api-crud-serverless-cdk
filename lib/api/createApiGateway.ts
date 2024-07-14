@@ -51,7 +51,7 @@ export const createApiGateway = (scope: Construct, props: CreateApiGatewayProps)
         requestParameters: {
             'method.request.querystring.limit': false,
             'method.request.querystring.nextToken': false,
-            'method.request.path.userId': true // Just for testing purposes
+            'method.request.path.userId': true 
         }
     });
 

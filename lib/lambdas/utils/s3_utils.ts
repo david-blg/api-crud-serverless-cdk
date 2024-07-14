@@ -5,6 +5,12 @@ const s3Client = new S3Client({});
 const BUCKET_NAME = process.env.BUCKET_NAME!;
 
 
+/**
+ * Uploads an object to an S3 bucket
+ * @param key The S3 object key
+ * @param object The object to upload
+ */
+
 export const uploadObject = async (key: string, object: any) => {
     const putObjectCommand = new PutObjectCommand({
         Bucket: BUCKET_NAME,

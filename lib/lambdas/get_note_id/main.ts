@@ -1,6 +1,6 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, GetCommand } from "@aws-sdk/lib-dynamodb";
-import { ResponseError } from "../utils/responses";
+import { ResponseError } from "../utils/utils";
 import { generatePresignedUrl } from "../utils/s3_utils";
 
 const dynamoClient = new DynamoDBClient({});

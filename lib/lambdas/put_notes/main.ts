@@ -1,7 +1,7 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand, GetCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { v4 as uuidv4 } from 'uuid';
-import { ResponseError, ResponseNotFound, validateFields, validateRequest } from "../utils/responses";
+import { ResponseError, ResponseNotFound, validateFields, validateRequest } from "../utils/utils";
 import { uploadObject } from "../utils/s3_utils";
 
 // Initialize AWS clients
