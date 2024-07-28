@@ -1,9 +1,15 @@
-import { LambdaIntegration, RestApi, CognitoUserPoolsAuthorizer, RequestValidator, JsonSchemaType } from "aws-cdk-lib/aws-apigateway";
+import {
+    LambdaIntegration, RestApi, CognitoUserPoolsAuthorizer,
+    JsonSchemaType, StageOptions, LogGroupLogDestination,
+    AccessLogFormat, Deployment, Stage
+} from "aws-cdk-lib/aws-apigateway";
 import { IUserPool } from "aws-cdk-lib/aws-cognito";
 import { IFunction } from "aws-cdk-lib/aws-lambda";
 import { Construct } from "constructs";
 import { addCorsOptions } from "./cors";
 import { createValidators, BODY_VALIDATOR, PARAM_VALIDATOR } from "./validators";
+import { LogGroup, RetentionDays } from "aws-cdk-lib/aws-logs";
+import { IKey } from "aws-cdk-lib/aws-kms";
 
 interface CreateApiGatewayProps {
     restApiName: string;
@@ -13,6 +19,7 @@ interface CreateApiGatewayProps {
     lambdaPutNotes: IFunction;
     lambdaGetNoteId: IFunction;
     lambdaDeleteNotes: IFunction;
+    kmsKey: IKey;
 }
 
 export const createApiGateway = (scope: Construct, props: CreateApiGatewayProps) => {
@@ -23,27 +30,68 @@ export const createApiGateway = (scope: Construct, props: CreateApiGatewayProps)
         lambdaGetNotes,
         lambdaPutNotes,
         lambdaGetNoteId,
-        lambdaDeleteNotes
+        lambdaDeleteNotes,
+        kmsKey
     } = props;
+
+    // Create Group CloudWatch Logs
+    const logGroup = new LogGroup(scope, 'ApiGatewayLogGroup', {
+        logGroupName: `/aws/api-gateway/${restApiName}`,
+        retention: RetentionDays.ONE_WEEK,
+        encryptionKey: kmsKey.addAlias('ApiGatewayLogGroupKey')
+    });
+
+
+    // Create Stage Options with cache enabled, access log and tracing
+    const stageOptions: StageOptions = {
+        stageName: 'prod',
+        cacheClusterEnabled: true,
+        cacheClusterSize: '0.5',
+        accessLogDestination: new LogGroupLogDestination(logGroup),
+        accessLogFormat: AccessLogFormat.jsonWithStandardFields({
+            caller: true,
+            httpMethod: true,
+            ip: true,
+            protocol: true,
+            requestTime: true,
+            resourcePath: true,
+            responseLength: true,
+            status: true,
+            user: true,
+        }),
+        tracingEnabled: true
+    };
 
     const api = new RestApi(scope, restApiName, {
         restApiName,
-        description
+        description,
+        deployOptions: stageOptions,
     });
 
-    // Crear validadores
+    // Create deployment and stage
+    const deployment = new Deployment(scope, 'ApiDeployment', { api });
+    const stage = new Stage(scope, 'ApiStage', {
+        deployment,
+        ...stageOptions,
+    });
+
+    api.deploymentStage = stage;
+
+    // Create Request Validator
     const bodyValidator = createValidators(scope, api, BODY_VALIDATOR); // POST, PUT
     const paramValidator = createValidators(scope, api, PARAM_VALIDATOR); // GET, DELETE
 
     const rootResource = api.root.addResource('v1');
     const notesResource = rootResource.addResource('notes');
 
+    // Create Cognito Authorizer
     const authorizer = new CognitoUserPoolsAuthorizer(scope, 'CognitoAuthorizer', {
         cognitoUserPools: [cognitoPool],
         authorizerName: 'CognitoAuthorizer',
         identitySource: 'method.request.header.Authorization'
     });
 
+    // Create API Gateway Methods for CRUD Operations (GET, POST, PUT, DELETE)
     notesResource.addMethod('GET', new LambdaIntegration(lambdaGetNotes), {
         operationName: 'GetAllNotes',
         authorizer,
@@ -51,8 +99,8 @@ export const createApiGateway = (scope: Construct, props: CreateApiGatewayProps)
         requestParameters: {
             'method.request.querystring.limit': false,
             'method.request.querystring.nextToken': false,
-            'method.request.path.userId': true 
-        }
+            'method.request.path.userId': true
+        },
     });
 
     notesResource.addMethod('POST', new LambdaIntegration(lambdaPutNotes), {
@@ -75,6 +123,7 @@ export const createApiGateway = (scope: Construct, props: CreateApiGatewayProps)
         }
     });
 
+    // Endpoint for Get, Update and Delete Note by ID
     const noteIdResource = notesResource.addResource('{noteId+}');
 
     noteIdResource.addMethod('GET', new LambdaIntegration(lambdaGetNoteId), {
@@ -117,7 +166,7 @@ export const createApiGateway = (scope: Construct, props: CreateApiGatewayProps)
         }
     });
 
-    // Añadir CORS
+    // Add CORS
     addCorsOptions(notesResource, ['GET', 'POST', 'OPTIONS']);
     addCorsOptions(noteIdResource, ['GET', 'PUT', 'DELETE', 'OPTIONS']);
 

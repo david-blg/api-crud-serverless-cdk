@@ -94,6 +94,7 @@ export class ApiCrudServerlessCdkStack extends cdk.Stack {
       restApiName: 'Api-Crud-Serverless-Demo',
       description: 'This is a simple API Gateway for a CRUD serverless application using AWS CDK',
       cognitoPool,
+      kmsKey,
       lambdaGetNotes,
       lambdaPutNotes,
       lambdaDeleteNotes,
