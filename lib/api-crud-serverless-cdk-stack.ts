@@ -10,6 +10,7 @@ import { createLamdaDeleteNotes } from './lambdas/delete_notes/construct';
 import { createLambdaGetNoteId } from './lambdas/get_note_id/construct';
 import { createBucketS3 } from './s3/createBucketS3';
 import { Key } from 'aws-cdk-lib/aws-kms';
+import { Queue, QueueEncryption } from 'aws-cdk-lib/aws-sqs';
 
 
 export class ApiCrudServerlessCdkStack extends cdk.Stack {
@@ -17,12 +18,20 @@ export class ApiCrudServerlessCdkStack extends cdk.Stack {
     super(scope, id, props);
 
 
-    // Create KMS for encription Key
-    const kmsKey = new Key(this, 'TableEncriptionKey',{
+    // Create KMS Ker for encryption services
+    const kmsKey = new Key(this, 'EncryptionKey', {
       enableKeyRotation: true,
-      alias: 'alias/TableEncriptionKey',
-      description: 'This is the KMS Key for encription of the DynamoDB Table'
-    })
+      alias: 'alias/EncryptionKey',
+      description: 'This is the KMS Key for encryption of the DynamoDB Table and Lambda environment variables'
+    });
+
+     // Create Dead Letter Queue
+     const dlq = new Queue(this, 'LambdaDLQ', {
+      queueName: 'LambdaDLQ',
+      encryption: QueueEncryption.KMS,
+      encryptionMasterKey: kmsKey
+    });
+
 
     // Create Cognito Pool 
     const cognitoPool = createCognitoIAM(this, {
@@ -50,26 +59,34 @@ export class ApiCrudServerlessCdkStack extends cdk.Stack {
       functionName: 'Lambda-Get-Notes',
       description: 'This Lambda function will return all notes',
       notesTable,
-      bucket
+      bucket,
+      kmsKey,
+      dlq
     })
 
     const lambdaGetNoteId = createLambdaGetNoteId(this, {
       functionName: 'Lambda-Get-Note-Id',
       description: 'This Lambda function will return a note by its ID',
-      notesTable
+      notesTable,
+      kmsKey,
+      dlq
     })
 
     const lambdaPutNotes = createLambdaPutNotes(this, {
       functionName: 'Lambda-Put-Notes',
       description: 'This Lambda function will create a new note or update an existing one',
       notesTable,
-      bucket
+      bucket,
+      kmsKey,
+      dlq
     })
 
     const lambdaDeleteNotes = createLamdaDeleteNotes(this, {
       functionName: 'Lambda-Delete-Notes',
       description: 'This Lambda function will delete a note',
-      notesTable
+      notesTable,
+      kmsKey,
+      dlq
     })
 
     // Create a Rest API
