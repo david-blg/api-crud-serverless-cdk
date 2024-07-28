@@ -1,5 +1,5 @@
 import { RemovalPolicy } from "aws-cdk-lib"
-import { BlockPublicAccess, Bucket, BucketEncryption, HttpMethods } from "aws-cdk-lib/aws-s3"
+import { BlockPublicAccess, Bucket, BucketEncryption, HttpMethods, StorageClass } from "aws-cdk-lib/aws-s3"
 import { Construct } from "constructs"
 
 
@@ -13,12 +13,28 @@ export const createBucketS3 = (scope: Construct, props: CreateBucketS3Props) => 
 
     const { bucketName } = props
 
+
+    // Create a bucket for logs
+    const logsBucket = new Bucket(scope, 'BucketLogs', {
+        bucketName: `${bucketName}-logs`,
+        removalPolicy: RemovalPolicy.DESTROY,
+        encryption: BucketEncryption.S3_MANAGED,
+        blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+        autoDeleteObjects: true,
+        versioned: true,
+        serverAccessLogsPrefix: 'access-logs/',
+    })
+
+    // Create the main bucket
     const bucket = new Bucket(scope, bucketName, {
         bucketName,
         removalPolicy: RemovalPolicy.DESTROY,
         encryption: BucketEncryption.S3_MANAGED,
         blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
         autoDeleteObjects: true,
+        versioned: true,
+        serverAccessLogsBucket: logsBucket,
+        serverAccessLogsPrefix: 'access-logs/',
         cors: [
             {
                 allowedMethods: [
