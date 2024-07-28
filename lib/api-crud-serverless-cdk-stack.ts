@@ -9,6 +9,7 @@ import { createLambdaPutNotes } from './lambdas/put_notes/construct';
 import { createLamdaDeleteNotes } from './lambdas/delete_notes/construct';
 import { createLambdaGetNoteId } from './lambdas/get_note_id/construct';
 import { createBucketS3 } from './s3/createBucketS3';
+import { Key } from 'aws-cdk-lib/aws-kms';
 
 
 export class ApiCrudServerlessCdkStack extends cdk.Stack {
@@ -16,6 +17,12 @@ export class ApiCrudServerlessCdkStack extends cdk.Stack {
     super(scope, id, props);
 
 
+    // Create KMS for encription Key
+    const kmsKey = new Key(this, 'TableEncriptionKey',{
+      enableKeyRotation: true,
+      alias: 'alias/TableEncriptionKey',
+      description: 'This is the KMS Key for encription of the DynamoDB Table'
+    })
 
     // Create Cognito Pool 
     const cognitoPool = createCognitoIAM(this, {
@@ -28,8 +35,9 @@ export class ApiCrudServerlessCdkStack extends cdk.Stack {
     const notesTable = createNotesTable(this, {
       tableName: 'UserNotes',
       enableStreams: false, // Enable DynamoDB Streams if you want to use it with Lambda Triggers or Kinesis
-      enablePointInTimeRecovery: false, // Enable Point in Time Recovery for the DynamoDB Table (Not available for On-Demand Billing Mode)
-      billingMode: BillingMode.PAY_PER_REQUEST
+      enablePointInTimeRecovery: true,
+      billingMode: BillingMode.PAY_PER_REQUEST,
+      kmsKey
     })
 
     // Create Bucket S3 for file uploads

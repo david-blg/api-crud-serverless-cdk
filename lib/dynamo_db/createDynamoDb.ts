@@ -1,5 +1,6 @@
 import { RemovalPolicy } from "aws-cdk-lib";
 import { AttributeType, BillingMode, StreamViewType, Table, TableEncryption, ProjectionType } from "aws-cdk-lib/aws-dynamodb";
+import { Key } from "aws-cdk-lib/aws-kms";
 import { Construct } from "constructs";
 
 interface NotesTableProps {
@@ -7,6 +8,7 @@ interface NotesTableProps {
     enableStreams?: boolean;
     enablePointInTimeRecovery?: boolean;
     billingMode?: BillingMode;
+    kmsKey: Key;
 }
 
 export const createNotesTable = (scope: Construct, props: NotesTableProps) => {
@@ -14,7 +16,8 @@ export const createNotesTable = (scope: Construct, props: NotesTableProps) => {
         tableName,
         enableStreams,
         enablePointInTimeRecovery,
-        billingMode = BillingMode.PAY_PER_REQUEST
+        billingMode = BillingMode.PAY_PER_REQUEST,
+        kmsKey
     } = props;
 
     const table = new Table(scope, tableName, {
@@ -28,7 +31,8 @@ export const createNotesTable = (scope: Construct, props: NotesTableProps) => {
             type: AttributeType.STRING
         },
         billingMode,
-        encryption: TableEncryption.AWS_MANAGED, // If you want to use a Customer Managed Key, use TableEncryption.CUSTOMER_MANAGED and provide the key as a parameter
+        encryption: kmsKey ? TableEncryption.CUSTOMER_MANAGED : TableEncryption.DEFAULT,
+        encryptionKey: kmsKey,
         removalPolicy: RemovalPolicy.DESTROY,
         pointInTimeRecovery: enablePointInTimeRecovery,
         timeToLiveAttribute: 'ttl',
