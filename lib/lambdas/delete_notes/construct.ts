@@ -29,7 +29,7 @@ export const createLamdaDeleteNotes = (scope: Construct, props: CreateLambdaDele
         environment: {
             TABLE_NAME: notesTable.tableName
         },
-        reservedConcurrentExecutions: 100,
+        reservedConcurrentExecutions: 10,
         environmentEncryption: kmsKey,
         deadLetterQueueEnabled: true,
         deadLetterQueue: dlq

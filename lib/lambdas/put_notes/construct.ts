@@ -36,7 +36,7 @@ export const createLambdaPutNotes = (scope: Construct, props: CreateLambdaPutNot
             TABLE_NAME: notesTable.tableName,
             BUCKET_NAME: bucket.bucketName
         },
-        reservedConcurrentExecutions: 100,
+        reservedConcurrentExecutions: 10,
         environmentEncryption: kmsKey,
         deadLetterQueueEnabled: true,
         deadLetterQueue: dlq

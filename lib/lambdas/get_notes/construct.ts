@@ -36,7 +36,7 @@ export const CreateLambdaGetNotes = (scope: Construct, props: LambdaGetNotesProp
             TABLE_NAME: notesTable.tableName,
             BUCKET_NAME: bucket.bucketName
         },
-        reservedConcurrentExecutions: 100,
+        reservedConcurrentExecutions: 10,
         environmentEncryption: kmsKey,
         deadLetterQueueEnabled: true,
         deadLetterQueue: dlq
