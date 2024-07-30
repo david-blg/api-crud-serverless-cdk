@@ -14,7 +14,7 @@ export const createNotesTable = (scope: Construct, props: NotesTableProps) => {
         tableName,
         enableStreams,
         enablePointInTimeRecovery,
-        billingMode = BillingMode.PAY_PER_REQUEST
+        billingMode
     } = props;
 
     const table = new Table(scope, tableName, {

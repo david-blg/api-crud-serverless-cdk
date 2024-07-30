@@ -31,7 +31,7 @@ export const createApiGateway = (scope: Construct, props: CreateApiGatewayProps)
         description
     });
 
-    // Crear validadores
+    // Create request validators
     const bodyValidator = createValidators(scope, api, BODY_VALIDATOR); // POST, PUT
     const paramValidator = createValidators(scope, api, PARAM_VALIDATOR); // GET, DELETE
 
@@ -117,7 +117,7 @@ export const createApiGateway = (scope: Construct, props: CreateApiGatewayProps)
         }
     });
 
-    // Añadir CORS
+    // Add CORS options
     addCorsOptions(notesResource, ['GET', 'POST', 'OPTIONS']);
     addCorsOptions(noteIdResource, ['GET', 'PUT', 'DELETE', 'OPTIONS']);
 

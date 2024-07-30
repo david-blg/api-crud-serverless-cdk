@@ -27,8 +27,8 @@ export class ApiCrudServerlessCdkStack extends cdk.Stack {
     // Create a DynamoDB Table
     const notesTable = createNotesTable(this, {
       tableName: 'UserNotes',
-      enableStreams: false, // Enable DynamoDB Streams if you want to use it with Lambda Triggers or Kinesis
-      enablePointInTimeRecovery: false, // Enable Point in Time Recovery for the DynamoDB Table (Not available for On-Demand Billing Mode)
+      enableStreams: false, // Enable DynamoDB Streams if you want to use it
+      enablePointInTimeRecovery: false, // Enable Point in Time Recovery for the DynamoDB Table (backup)
       billingMode: BillingMode.PAY_PER_REQUEST
     })
 
